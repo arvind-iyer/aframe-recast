@@ -1,0 +1,69 @@
+<html>
+  <script type="importmap">
+    {
+      "imports": {
+        "@recast-navigation/core": "https://unpkg.com/@recast-navigation/core@0.29.0/dist/index.mjs",
+        "@recast-navigation/wasm": "https://unpkg.com/@recast-navigation/wasm@0.29.0/dist/recast-navigation.wasm-compat.js",
+        "@recast-navigation/generators": "https://unpkg.com/@recast-navigation/generators@0.29.0/dist/index.mjs",
+        "@recast-navigation/three": "https://unpkg.com/@recast-navigation/three@0.29.0/dist/index.mjs",
+        "three": "https://unpkg.com/three@0.164.0/build/three.module.js",
+        "three/examples/jsm/controls/OrbitControls": "https://unpkg.com/three@0.164.0/examples/jsm/controls/OrbitControls.js"
+      }
+    }
+  </script>
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+  <script type="module" src="./aframe-recast.js"></script>
+  <style>
+    h3 {
+      display:flex;
+      justify-content: center;
+      position: relative;
+      z-index: 999;
+      background: #77777780;
+      font-family: monospace;
+    }
+  </style>
+
+  <body>
+    <div>
+      <h3>Press B to bake navigation mesh. <br> Then open inspector (Ctrl+Alt+I) and press X to save the nav mesh as GLB file</h3>
+    </div>
+    <a-scene>
+      <a-assets>
+        <a-asset-item id="room" src="/assets/nav_test.glb"></a-asset-item>
+      </a-assets>
+
+      <a-camera></a-camera>
+      <a-entity gltf-model="#room" recast></a-entity>
+      
+    </a-scene>
+
+    <script>
+      
+      // Function to be called when 'b' key is pressed
+      function handleBKeyPress(event) {
+        if (event.key === 'b' || event.key === 'B') { // Check if the 'b' key is pressed
+          const recastElement = document.querySelector('[recast]');
+          if (recastElement) {
+            recastElement.emit('bake', {})
+          } else {
+            console.log('The recast element was not found.');
+          }
+        }
+        if (event.key === 'x' || event.key === 'x') { // Check if the 'x' key is pressed
+          const recastElement = document.querySelector('[recast]');
+          if (recastElement) {
+            recastElement.components.recast.export();
+          } else {
+            console.log('The recast element was not found.');
+          }
+        }
+
+      }
+
+      // Attach the event listener to the document
+      document.addEventListener('keydown', handleBKeyPress);
+
+    </script>
+  </body>
+</html>
