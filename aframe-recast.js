@@ -20,27 +20,11 @@ function saveBlob(blob, filename) {
 AFRAME.registerSystem(
     'recast', 
     {
-        schema: {
-            cs: {default: 0.2, type: 'number'},
-            ch: {default: 0.2, type: 'number'},
-            walkableSlopeAngle: {default: 35, type: 'number'},
-            walkableHeight: {default: 1, type: 'number'},
-            walkableClimb: {default: 1, type: 'number'},
-            walkableRadius: {default: 1, type: 'number'},
-            maxEdgeLen: {default: 12, type: 'number'},
-            maxSimplificationError: {default: 1.3, type: 'number'},
-            minRegionArea: {default: 8, type: 'number' },
-            mergeRegionArea: {default: 20, type: 'number' },
-            maxVertsPerPoly: {default: 6, type: 'number' },
-            detailSampleDist: {default: 6, type: 'number' },
-            detailSampleMaxError: {default: 1, type: 'number' }
-        },
         init: function() {
             initRecastNavigation().then((e) => console.log("initialized recast navigation. ", e));
         },
-        bake: function(meshes) {
-            console.log(meshes);
-            const {success, navMesh} = threeToSoloNavMesh(meshes, this.data);
+        bake: function(meshes, recastProps) {
+            const {success, navMesh} = threeToSoloNavMesh(meshes, recastProps);
             if (success) {
                 return navMesh;
             }
@@ -52,6 +36,19 @@ AFRAME.registerSystem(
 AFRAME.registerComponent('recast', {
     schema: {
         bakeEvent: {default: 'bake', type: 'string'},
+        cellSize: {default: 0.2, type: 'number'},
+        cellHeight: {default: 0.2, type: 'number'},
+        walkableSlopeAngle: {default: 35, type: 'number'},
+        walkableHeight: {default: 1, type: 'number'},
+        walkableClimb: {default: 1, type: 'number'},
+        walkableRadius: {default: 1, type: 'number'},
+        maxEdgeLen: {default: 12, type: 'number'},
+        maxSimplificationError: {default: 1.3, type: 'number'},
+        minRegionArea: {default: 8, type: 'number' },
+        mergeRegionArea: {default: 20, type: 'number' },
+        maxVertsPerPoly: {default: 6, type: 'number' },
+        detailSampleDist: {default: 6, type: 'number' },
+        detailSampleMaxError: {default: 1, type: 'number' }
     },
     init: function() {
         this.bake = this.onBakeEvent.bind(this);
@@ -101,7 +98,23 @@ AFRAME.registerComponent('recast', {
                 meshes.push(n);
             }
         });
-        let navMesh = this.system.bake(meshes);
+        let recastProps = {
+            ch: this.data.cellHeight,
+            cs: this.data.cellSize,
+            walkableSlopeAngle: this.data.walkableSlopeAngle,
+            walkableHeight: this.data.walkableHeight,
+            walkableClimb: this.data.walkableClimb,
+            walkableRadius: this.data.walkableRadius,
+            maxEdgeLen: this.data.maxEdgeLen,
+            maxSimplificationError: this.data.maxSimplificationError,
+            minRegionArea: this.data.minRegionArea,
+            mergeRegionArea: this.data.mergeRegionArea,
+            maxVertsPerPoly: this.data.maxVertsPerPoly,
+            detailSampleDist: this.data.detailSampleDist,
+            detailSampleMaxError: this.data.detailSampleMaxError,
+        }
+        let navMesh = this.system.bake(meshes, recastProps);
+
 
         if (navMesh !== null) {
             const navMeshObject = new NavMeshHelper({
