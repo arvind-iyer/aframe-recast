@@ -8,6 +8,6 @@
     "recast-navigation": "^0.32.0"
   },
   "devDependencies": {
-    "http-server": '^14.1.1"
+    "http-server": "^14.1.1"
   }
 }
